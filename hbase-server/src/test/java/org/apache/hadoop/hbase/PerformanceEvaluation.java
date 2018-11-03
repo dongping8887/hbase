@@ -18,32 +18,11 @@
  */
 package org.apache.hadoop.hbase;
 
-import static org.codehaus.jackson.map.SerializationConfig.Feature.SORT_PROPERTIES_ALPHABETICALLY;
-
-import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.reflect.Constructor;
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Random;
-import java.util.TreeMap;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 import com.google.common.base.Objects;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
+import com.yammer.metrics.core.Histogram;
+import com.yammer.metrics.stats.Snapshot;
+import com.yammer.metrics.stats.UniformSample;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -51,31 +30,9 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.classification.InterfaceAudience;
-import org.apache.hadoop.hbase.client.Admin;
-import org.apache.hadoop.hbase.client.Append;
-import org.apache.hadoop.hbase.client.BufferedMutator;
-import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.ConnectionFactory;
-import org.apache.hadoop.hbase.client.Consistency;
-import org.apache.hadoop.hbase.client.Delete;
-import org.apache.hadoop.hbase.client.Durability;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.Increment;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.RowMutations;
-import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.filter.BinaryComparator;
-import org.apache.hadoop.hbase.filter.CompareFilter;
+import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.filter.*;
 import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
-import org.apache.hadoop.hbase.filter.Filter;
-import org.apache.hadoop.hbase.filter.FilterAllFilter;
-import org.apache.hadoop.hbase.filter.FilterList;
-import org.apache.hadoop.hbase.filter.PageFilter;
-import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
-import org.apache.hadoop.hbase.filter.WhileMatchFilter;
 import org.apache.hadoop.hbase.io.compress.Compression;
 import org.apache.hadoop.hbase.io.encoding.DataBlockEncoding;
 import org.apache.hadoop.hbase.io.hfile.RandomDistribution;
@@ -93,16 +50,23 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.mapreduce.lib.reduce.LongSumReducer;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import org.codehaus.jackson.map.ObjectMapper;
-
-import com.yammer.metrics.core.Histogram;
-import com.yammer.metrics.stats.UniformSample;
-import com.yammer.metrics.stats.Snapshot;
-
 import org.apache.htrace.Sampler;
 import org.apache.htrace.Trace;
 import org.apache.htrace.TraceScope;
 import org.apache.htrace.impl.ProbabilitySampler;
+import org.codehaus.jackson.map.ObjectMapper;
+
+import java.io.IOException;
+import java.io.PrintStream;
+import java.lang.reflect.Constructor;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.*;
+
+import static org.codehaus.jackson.map.SerializationConfig.Feature.SORT_PROPERTIES_ALPHABETICALLY;
 
 /**
  * Script used evaluating HBase performance and scalability.  Runs a HBase
@@ -1092,7 +1056,9 @@ public class PerformanceEvaluation extends Configured implements Tool {
         long startTime = System.nanoTime();
         TraceScope scope = Trace.startSpan("test row", traceSampler);
         try {
+          LOG.info("testRow begin: " + i);
           testRow(i);
+          LOG.info("testRow end: " + i);
         } finally {
           scope.close();
         }
@@ -1406,6 +1372,7 @@ public class PerformanceEvaluation extends Configured implements Tool {
         }
       }
       put.setDurability(opts.writeToWAL ? Durability.SYNC_WAL : Durability.SKIP_WAL);
+      LOG.info("");
       mutator.mutate(put);
     }
   }

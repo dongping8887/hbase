@@ -138,7 +138,10 @@ public class BufferedMutatorImpl implements BufferedMutator {
     writeAsyncBuffer.add(m);
 
     while (currentWriteBufferSize > writeBufferSize) {
+      LOG.info("currentWriteBufferSize : " + currentWriteBufferSize + ", writeBufferSize : " + writeBufferSize);
+      LOG.info("backgroundFlushCommits begin ...");
       backgroundFlushCommits(false);
+      LOG.info("backgroundFlushCommits end ...");
     }
   }
 
