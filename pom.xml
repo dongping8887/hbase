@@ -2590,14 +2590,29 @@
       </plugin>
     </plugins>
   </reporting>
+
+  <!--<distributionManagement>-->
+    <!--<site>-->
+      <!--<id>hbase.apache.org</id>-->
+      <!--<name>HBase Website at hbase.apache.org</name>-->
+      <!--&lt;!&ndash; On why this is the tmp dir and not hbase.apache.org, see-->
+               <!--https://issues.apache.org/jira/browse/HBASE-7593?focusedCommentId=13555866&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-13555866-->
+               <!--&ndash;&gt;-->
+      <!--<url>file:///tmp</url>-->
+    <!--</site>-->
+  <!--</distributionManagement>-->
+
   <distributionManagement>
-    <site>
-      <id>hbase.apache.org</id>
-      <name>HBase Website at hbase.apache.org</name>
-      <!-- On why this is the tmp dir and not hbase.apache.org, see
-               https://issues.apache.org/jira/browse/HBASE-7593?focusedCommentId=13555866&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-13555866
-               -->
-      <url>file:///tmp</url>
-    </site>
+    <repository>
+      <id>nexus-releases</id>
+      <name>nexus releases</name>
+      <url>http://192.168.100.110:8081/repository/maven-releases/</url>
+    </repository>
+    <snapshotRepository>
+      <id>nexus-snapshots</id>
+      <name>nexus snapshots</name>
+      <url>http://192.168.100.110:8081/repository/maven-snapshots/</url>
+    </snapshotRepository>
   </distributionManagement>
+
 </project>
