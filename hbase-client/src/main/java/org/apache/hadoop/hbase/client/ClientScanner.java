@@ -137,7 +137,7 @@ public class ClientScanner extends AbstractClientScanner {
             HConstants.HBASE_CLIENT_SCANNER_TIMEOUT_PERIOD,
             HConstants.HBASE_REGIONSERVER_LEASE_PERIOD_KEY,
             3600000);
-      LOG.info("------------scannerTimeout : " + scannerTimeout);
+      LOG.debug("------------scannerTimeout : " + scannerTimeout);
        // modify by dongping 20181031 end
       // check if application wants to collect scan metrics
       initScanMetrics(scan);
